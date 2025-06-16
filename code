@@ -1,0 +1,142 @@
+#include <LiquidCrystal.h>
+
+String p1 = "Lot1 ";
+String p2 = "Lot2 ";
+String p3 = "Lot3 ";
+
+const int R1 = 2;
+const int G1 = 3;
+#define a1 A0
+
+const int R2 = 4;
+const int G2 = 5;
+#define a2 A1
+
+const int R3 = 6;
+const int G3 = 7;
+#define a3 A2
+
+int ambientLight1;
+int ambientLight2;
+int ambientLight3;
+
+const int rs = 12, en = 13, d4 = 10, d5 = 9, d6 = 8, d7 = 11;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void setup() {
+  pinMode(a1, INPUT);
+  pinMode(a2, INPUT);
+  pinMode(a3, INPUT);
+  pinMode(R1, OUTPUT);
+  pinMode(R2, OUTPUT);
+  pinMode(R3, OUTPUT);
+  pinMode(G1, OUTPUT);
+  pinMode(G2, OUTPUT);
+  pinMode(G3, OUTPUT);
+
+  lcd.begin(16, 2);
+
+  lcd.setCursor(4, 0);
+  lcd.print("starting ");
+  lcd.setCursor(1, 1);
+  lcd.print("Parking System");
+  delay(700);
+
+  flowLight(100);
+  blink(2, 200);
+  delay(500);
+  lcd.clear();
+
+  lcd.setCursor(2, 0);
+  lcd.print("Initializing");
+  lcd.setCursor(1, 1);
+  lcd.print("ambient values");
+  ambientLight1 = analogRead(a1);
+  ambientLight2 = analogRead(a2);
+  ambientLight3 = analogRead(a3);
+  delay(700);
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Stored Values");
+  lcd.setCursor(1, 1);
+  lcd.clear();
+  lcd.print("ready to begin");
+  delay(700);
+}
+
+void loop() {
+  operation();
+  displayP();
+}
+
+void operation() {
+  if (analogRead(a1) < ambientLight1) {
+    digitalWrite(R1, LOW);
+    digitalWrite(G1, HIGH);
+    p1 = "L1:Full ";
+  } else {
+    digitalWrite(G1, LOW);
+    digitalWrite(R1, HIGH);
+    p1 = "L1:Null ";
+  }
+
+  if (analogRead(a2) + 20 < ambientLight2) {
+    digitalWrite(R2, LOW);
+    digitalWrite(G2, HIGH);
+    p2 = "L2:Full ";
+  } else {
+    digitalWrite(G2, LOW);
+    digitalWrite(R2, HIGH);
+    p2 = "L2:Null ";
+  }
+
+  if (analogRead(a3) - 1 < ambientLight3) {
+    digitalWrite(R3, LOW);
+    digitalWrite(G3, HIGH);
+    p3 = "L3:Full ";
+  } else {
+    digitalWrite(G3, LOW);
+    digitalWrite(R3, HIGH);
+    p3 = "L3:Null ";
+  }
+}
+
+void flowLight(int time) {
+  for (int i = 2; i <= 7; i++) {
+    digitalWrite(i, HIGH);
+    delay(time);
+  }
+  for (int i = 8; i >= 3; i--) {
+    digitalWrite(i, LOW);
+    delay(time);
+  }
+  blink(2, 100);
+}
+
+void blink(int times, int time) {
+  for (int i = 0; i <= times; i++) {
+    digitalWrite(R1, HIGH);
+    digitalWrite(G1, HIGH);
+    digitalWrite(R2, HIGH);
+    digitalWrite(G2, HIGH);
+    digitalWrite(R3, HIGH);
+    digitalWrite(G3, HIGH);
+    delay(time);
+    digitalWrite(R1, LOW);
+    digitalWrite(G1, LOW);
+    digitalWrite(R2, LOW);
+    digitalWrite(G2, LOW);
+    digitalWrite(R3, LOW);
+    digitalWrite(G3, LOW);
+    delay(time);
+  }
+}
+
+void displayP() {
+  lcd.setCursor(0, 0);
+  lcd.print(p1 + p2);
+  lcd.setCursor(0, 1);
+  lcd.print(p3);
+  delay(500);
+}
